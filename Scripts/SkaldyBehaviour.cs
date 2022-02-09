@@ -40,8 +40,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
                 return;
             m_didGoodbye = true;
             Say(m_randomGoodbye, "Greet");
-            Coroutine? audioStart = AudioController.AudioStart;
-            StopCoroutine(audioStart);
+            gameObject.GetComponent<AudioSource>().Stop();
         }
     }
 
@@ -73,7 +72,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         try
         {
             CycleAccessMode();
-            return false;
+            return true;
         }
         catch (Exception ex)
         {
@@ -99,10 +98,10 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         return GetComponent<ZNetView>().GetZDO().GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
     }
 
-    private IEnumerable<WWW> CycleAccessMode()
+    private void CycleAccessMode()
     {
         if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
-            yield break;
+            return;
         string currentSongName = GetCurrentSong();
 
         for (int i = 0; i < SkaldyPlugin.fileDir.Count; i++)
@@ -112,16 +111,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
                 if (i >= SkaldyPlugin.fileDir.Count)
                     i = 0;
                 SetCurrentSong(this, SkaldyPlugin.fileDir[i]);
-                StopCoroutine(AudioController.AudioStart);
-                WWW request = AudioController.GetAudioFromFile(AudioController.soundPath,
-                    gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", SkaldyPlugin.audioFileName.Value));
-                yield return request;
-
-                AudioController.audioClip = request.GetAudioClip();
-                AudioController.audioClip.name = GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
-
-                AudioController.PlayAudioFile();
-                yield break;
+                return;
             }
 
 
