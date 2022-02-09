@@ -39,12 +39,18 @@ namespace Skaldy
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
             audioFileName = config("General", "Audio File Name", "",
-                "The audio file you wish to load from the BardSounds folder.");
+                "The audio file you wish to load from the BardSounds folder. This value, if left blank, will default to the first file found in the folder.");
+
+            audioFileVolume = config("General", "Audio File Internal Volume", 0.1f,
+                new ConfigDescription(
+                    "Modify the internal volume of the audio source.\nValues are between  0 - 1.",
+                    new AcceptableValueRange<float>(0.0f, 1.0f)));
 
             BuildPiece buildPiece = new("skaldy", "Skaldy");
             buildPiece.Name.English("Skaldy The Bard");
             buildPiece.Description.English("Skald!");
             buildPiece.RequiredItems.Add("Wood", 1, false);
+
 
             /* Load all of the sounds in the folder of the client */
             DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
@@ -107,6 +113,11 @@ namespace Skaldy
                     string? justFileName = Path.GetFileName(f);
                     fileDir.Add(i, justFileName);
                     SkaldyLogger.LogWarning(justFileName);
+                    if (i == 0)
+                    {
+                        audioFileName.Value = justFileName;
+                    }
+
                     i++;
                 }
 
@@ -145,6 +156,7 @@ namespace Skaldy
 
         private static ConfigEntry<bool>? _serverConfigLocked;
         internal static ConfigEntry<string>? audioFileName;
+        internal static ConfigEntry<float>? audioFileVolume;
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)

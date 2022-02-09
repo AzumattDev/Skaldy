@@ -79,7 +79,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         }
         catch (Exception ex)
         {
-            SkaldyPlugin.SkaldyLogger.LogError($"Interact Patch LeftShift : {ex}");
+            SkaldyPlugin.SkaldyLogger.LogError($"Interact Patch : {ex}");
             return true;
         }
     }

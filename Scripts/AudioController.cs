@@ -38,6 +38,7 @@ public class AudioController : MonoBehaviour
 
     public IEnumerator LoadAudio()
     {
+        if (audioFileName.Value.Length <= 1) yield break;
         WWW request = GetAudioFromFile(soundPath,
             gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", audioFileName.Value));
         yield return request;
@@ -54,6 +55,7 @@ public class AudioController : MonoBehaviour
         audioSource.enabled = true;
         audioSource.Play();
         audioSource.loop = true;
+        audioSource.volume = audioFileVolume.Value;
     }
 
     private WWW GetAudioFromFile(string path, string filename)
