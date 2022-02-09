@@ -71,14 +71,14 @@ namespace Skaldy
 
             FileSystemWatcher folderWatcher =
                 new(Paths.PluginPath + Path.DirectorySeparatorChar + "Sound" + Path.DirectorySeparatorChar);
-            watcher.Changed += UpdateAudioFiles;
-            watcher.Created += UpdateAudioFiles;
-            watcher.Deleted += UpdateAudioFiles;
-            watcher.Renamed += UpdateAudioFiles;
-            watcher.Error += OnError;
-            watcher.IncludeSubdirectories = true;
-            watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
-            watcher.EnableRaisingEvents = true;
+            folderWatcher.Changed += UpdateAudioFiles;
+            folderWatcher.Created += UpdateAudioFiles;
+            folderWatcher.Deleted += UpdateAudioFiles;
+            folderWatcher.Renamed += UpdateAudioFiles;
+            folderWatcher.Error += OnError;
+            folderWatcher.IncludeSubdirectories = true;
+            folderWatcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
+            folderWatcher.EnableRaisingEvents = true;
         }
 
         private void ReadConfigValues(object sender, FileSystemEventArgs e)
@@ -115,7 +115,7 @@ namespace Skaldy
                     DirSearch(d);
                 }
             }
-            catch (System.Exception excpt)
+            catch (Exception excpt)
             {
                 SkaldyLogger.LogError(excpt.Message);
             }
@@ -123,7 +123,7 @@ namespace Skaldy
 
         static void UpdateAudioFiles(object sender, FileSystemEventArgs e)
         {
-            DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "Sound" + Path.DirectorySeparatorChar);
+            DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
         }
 
         private static void OnError(object sender, ErrorEventArgs e) =>

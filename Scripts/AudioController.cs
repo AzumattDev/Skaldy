@@ -9,9 +9,10 @@ public class AudioController : MonoBehaviour
 {
     //public const string audioName = "t.mp3";
 
-    [Header("Audio Stuff")] public AudioSource audioSource;
-    public AudioClip audioClip;
-    public string soundPath;
+    [Header("Audio Stuff")] public static AudioSource audioSource;
+    public static AudioClip audioClip;
+    public static string soundPath;
+    public static Coroutine? AudioStart;
 
     private void Awake()
     {
@@ -30,22 +31,22 @@ public class AudioController : MonoBehaviour
 
         //soundPath = "file://" + Application.streamingAssetsPath + "/Sound/";
         soundPath = BepInEx.Paths.PluginPath + Path.DirectorySeparatorChar + "Sound" + Path.DirectorySeparatorChar;
-        StartCoroutine(LoadAudio());
+        AudioStart = StartCoroutine(LoadAudio());
     }
 
     public IEnumerator LoadAudio()
     {
         WWW request = GetAudioFromFile(soundPath,
-            gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", SkaldyPlugin.audioFileName.Value));
+            gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", audioFileName.Value));
         yield return request;
 
         audioClip = request.GetAudioClip();
-        audioClip.name = gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
+        audioClip.name = GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", audioFileName.Value);
 
         PlayAudioFile();
     }
 
-    public void PlayAudioFile()
+    public static void PlayAudioFile()
     {
         audioSource.clip = audioClip;
         audioSource.enabled = true;
@@ -53,10 +54,10 @@ public class AudioController : MonoBehaviour
         audioSource.loop = true;
     }
 
-    private WWW GetAudioFromFile(string path, string filename)
+    public static WWW GetAudioFromFile(string path, string filename)
     {
         string audioToLoad = string.Format(path + "{0}", filename);
-        WWW request = new WWW(audioToLoad);
+        WWW request = new(audioToLoad);
         return request;
     }
 }
