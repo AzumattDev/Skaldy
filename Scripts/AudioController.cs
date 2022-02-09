@@ -16,6 +16,8 @@ public class AudioController : MonoBehaviour
 
     private void Awake()
     {
+        if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
+            return;
         audioSource = gameObject.GetComponent<AudioSource>();
 
         try
@@ -30,7 +32,7 @@ public class AudioController : MonoBehaviour
         }
 
         //soundPath = "file://" + Application.streamingAssetsPath + "/Sound/";
-        soundPath = BepInEx.Paths.PluginPath + Path.DirectorySeparatorChar + "Sound" + Path.DirectorySeparatorChar;
+        soundPath = BepInEx.Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar;
         AudioStart = StartCoroutine(LoadAudio());
     }
 

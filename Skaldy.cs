@@ -39,7 +39,7 @@ namespace Skaldy
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
             audioFileName = config("General", "Audio File Name", "",
-                "The audio file you wish to load from the Sound folder.");
+                "The audio file you wish to load from the BardSounds folder.");
 
             BuildPiece buildPiece = new("skaldy", "Skaldy");
             buildPiece.Name.English("Skaldy The Bard");
@@ -47,7 +47,7 @@ namespace Skaldy
             buildPiece.RequiredItems.Add("Wood", 1, false);
 
             /* Load all of the sounds in the folder of the client */
-            DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "Sound" + Path.DirectorySeparatorChar);
+            DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
 
             _harmony.PatchAll();
             SetupWatcher();
@@ -70,7 +70,7 @@ namespace Skaldy
 
 
             FileSystemWatcher folderWatcher =
-                new(Paths.PluginPath + Path.DirectorySeparatorChar + "Sound" + Path.DirectorySeparatorChar);
+                new(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
             folderWatcher.Changed += UpdateAudioFiles;
             folderWatcher.Created += UpdateAudioFiles;
             folderWatcher.Deleted += UpdateAudioFiles;

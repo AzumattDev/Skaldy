@@ -18,10 +18,12 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
     public bool m_didGreet;
     public bool m_didGoodbye;
     public LookAt m_lookAt;
+    public static AudioController instance;
 
     public void Start()
     {
         InvokeRepeating("RandomTalk", m_randomTalkInterval, m_randomTalkInterval);
+        instance = gameObject.GetComponent<AudioController>();
     }
 
     public void Update()
@@ -40,6 +42,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
                 return;
             m_didGoodbye = true;
             Say(m_randomGoodbye, "Greet");
+            StopCoroutine(AudioController.AudioStart);
             gameObject.GetComponent<AudioSource>().Stop();
         }
     }
@@ -95,6 +98,8 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
 
     public string GetCurrentSong()
     {
+        if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
+            return "";
         return GetComponent<ZNetView>().GetZDO().GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
     }
 
@@ -111,6 +116,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
                 if (i >= SkaldyPlugin.fileDir.Count)
                     i = 0;
                 SetCurrentSong(this, SkaldyPlugin.fileDir[i]);
+                AudioController.AudioStart = instance.StartCoroutine(instance.LoadAudio());
                 return;
             }
 
