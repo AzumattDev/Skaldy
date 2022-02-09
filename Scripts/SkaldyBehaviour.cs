@@ -17,13 +17,14 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
     public List<string> m_randomGoodbye;
     public bool m_didGreet;
     public bool m_didGoodbye;
+
     public LookAt m_lookAt;
-    public static AudioController instance;
+    //public static AudioController instance;
 
     public void Start()
     {
         InvokeRepeating("RandomTalk", m_randomTalkInterval, m_randomTalkInterval);
-        instance = gameObject.GetComponent<AudioController>();
+        //instance = gameObject.GetComponent<AudioController>();
     }
 
     public void Update()
@@ -35,15 +36,22 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
             if (!m_didGreet && num < (double)m_greetRange)
             {
                 m_didGreet = true;
+                m_didGoodbye = false;
                 Say(m_randomGreets, "Greet");
+                if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
+                    return;
+                AudioController.AudioStart = gameObject.GetComponent<AudioController>()
+                    .StartCoroutine(gameObject.GetComponent<AudioController>().LoadAudio());
             }
 
             if (!m_didGreet || m_didGoodbye || num <= (double)m_byeRange)
                 return;
             m_didGoodbye = true;
+            m_didGreet = false;
             Say(m_randomGoodbye, "Greet");
+            if (AudioController.AudioStart == null) return;
             StopCoroutine(AudioController.AudioStart);
-            gameObject.GetComponent<AudioSource>().Stop();
+            gameObject.GetComponent<AudioController>().audioSource.Stop();
         }
     }
 
@@ -60,8 +68,14 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
 
         stringBuilder.Append(
             Localization.instance.Localize(m_name +
-                                           $" [<color=green>Playing:</color> {GetCurrentSong()}]" +
-                                           "\n[<color=yellow><b>$KEY_Use</b></color>] $raven_interact"));
+                                           $"\n[<color=green>Playing:</color> {GetCurrentSong()}]" +
+                                           "\n\n[<color=yellow><b>$KEY_Use</b></color>] $raven_interact"));
+        if (gameObject.GetComponent<AudioController>().audioSource.isPlaying)
+        {
+            stringBuilder.Append(
+                Localization.instance.Localize("\n[<color=red><b>Left Shift + $KEY_Use</b></color>] Stop Playing"));
+        }
+
         return stringBuilder.ToString();
     }
 
@@ -71,16 +85,25 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
     {
         if (hold)
             return false;
-        //if (Input.GetKey(KeyCode.LeftShift))
-        try
+        if (Input.GetKey(KeyCode.LeftShift))
         {
-            CycleAccessMode();
-            return true;
+            if (AudioController.AudioStart == null) return true;
+            StopCoroutine(AudioController.AudioStart);
+            gameObject.GetComponent<AudioController>().audioSource.Stop();
+            return false;
         }
-        catch (Exception ex)
+        else
         {
-            SkaldyPlugin.SkaldyLogger.LogError($"Interact Patch : {ex}");
-            return true;
+            try
+            {
+                CycleAccessMode();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                SkaldyPlugin.SkaldyLogger.LogError($"Interact Patch : {ex}");
+                return true;
+            }
         }
     }
 
@@ -116,7 +139,16 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
                 if (i >= SkaldyPlugin.fileDir.Count)
                     i = 0;
                 SetCurrentSong(this, SkaldyPlugin.fileDir[i]);
-                AudioController.AudioStart = instance.StartCoroutine(instance.LoadAudio());
+                try
+                {
+                    AudioController.AudioStart = gameObject.GetComponent<AudioController>()
+                        .StartCoroutine(gameObject.GetComponent<AudioController>().LoadAudio());
+                }
+                catch
+                {
+                    SkaldyPlugin.SkaldyLogger.LogWarning("There was a problem starting the coroutine.");
+                }
+
                 return;
             }
 
@@ -130,6 +162,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         if (skaldy.GetComponent<ZNetView>() && skaldy.GetComponent<ZNetView>().m_zdo != null)
         {
             skaldy.GetComponent<ZNetView>().m_zdo.Set("CurrentSong", songName);
+            SkaldyPlugin.SkaldyLogger.LogWarning($"LOGGING {songName}");
         }
     }
 }

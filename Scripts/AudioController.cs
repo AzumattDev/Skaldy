@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Skaldy;
@@ -7,11 +8,8 @@ using static Skaldy.SkaldyPlugin;
 
 public class AudioController : MonoBehaviour
 {
-    //public const string audioName = "t.mp3";
-
     [Header("Audio Stuff")] public AudioSource audioSource;
     public AudioClip audioClip;
-    public string soundPath;
     public static Coroutine? AudioStart;
 
     private void Awake()
@@ -32,14 +30,13 @@ public class AudioController : MonoBehaviour
         }
 
         //soundPath = "file://" + Application.streamingAssetsPath + "/Sound/";
-        soundPath = BepInEx.Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar;
         AudioStart = StartCoroutine(LoadAudio());
     }
 
     public IEnumerator LoadAudio()
     {
         if (audioFileName.Value.Length <= 1) yield break;
-        WWW request = GetAudioFromFile(soundPath,
+        WWW request = GetAudioFromFile(FilesFullPath,
             gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", audioFileName.Value));
         yield return request;
 
@@ -47,6 +44,11 @@ public class AudioController : MonoBehaviour
         audioClip.name = gameObject.GetComponent<ZNetView>().m_zdo.GetString("CurrentSong", audioFileName.Value);
 
         PlayAudioFile();
+    }
+
+    public void OnDestroy()
+    {
+        audioSource.Stop();
     }
 
     public void PlayAudioFile()

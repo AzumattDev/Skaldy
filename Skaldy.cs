@@ -21,6 +21,10 @@ namespace Skaldy
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
         private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
+
+        internal static string FilesFullPath = Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" +
+                                               Path.DirectorySeparatorChar;
+
         internal static Dictionary<int, string> fileDir = new();
 
         internal static string ConnectionError = "";
@@ -76,7 +80,7 @@ namespace Skaldy
 
 
             FileSystemWatcher folderWatcher =
-                new(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
+                new(FilesFullPath);
             folderWatcher.Changed += UpdateAudioFiles;
             folderWatcher.Created += UpdateAudioFiles;
             folderWatcher.Deleted += UpdateAudioFiles;
@@ -134,7 +138,7 @@ namespace Skaldy
 
         static void UpdateAudioFiles(object sender, FileSystemEventArgs e)
         {
-            DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
+            DirSearch(FilesFullPath);
         }
 
         private static void OnError(object sender, ErrorEventArgs e) =>
