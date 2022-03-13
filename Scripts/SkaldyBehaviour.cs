@@ -113,7 +113,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
             try
             {
                 SkaldyPlugin.ShowGUI();
-                //CycleAccessMode();
+                //CycleSong();
                 return true;
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         return GetComponent<ZNetView>().GetZDO().GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
     }
 
-    internal void CycleAccessMode()
+    internal void CycleSong()
     {
         if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
             return;

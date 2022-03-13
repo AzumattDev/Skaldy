@@ -64,6 +64,7 @@ namespace Skaldy
             SongGUI.SetActive(false);
             
             /* Load all of the sounds in the folder of the client */
+            Directory.CreateDirectory("BardSounds");
             DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
 
             _harmony.PatchAll();
