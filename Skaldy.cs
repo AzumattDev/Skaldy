@@ -8,7 +8,9 @@ using BepInEx.Logging;
 using HarmonyLib;
 using PieceManager;
 using ServerSync;
+using Skaldy.Extensions;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Skaldy
 {
@@ -25,7 +27,8 @@ namespace Skaldy
         internal static string FilesFullPath = Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" +
                                                Path.DirectorySeparatorChar;
 
-        internal static Dictionary<int, string> fileDir = new();
+        internal static readonly Dictionary<int, string> FileDir = new();
+        internal static GameObject SongGUI;
 
         internal static string ConnectionError = "";
 
@@ -55,7 +58,11 @@ namespace Skaldy
             buildPiece.Description.English("Skald!");
             buildPiece.RequiredItems.Add("Wood", 1, false);
 
-
+            GameObject go = PiecePrefabManager.RegisterPrefab("skaldy", "SongGUI");
+            SongGUI = Instantiate(go);
+            DontDestroyOnLoad(SongGUI);
+            SongGUI.SetActive(false);
+            
             /* Load all of the sounds in the folder of the client */
             DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
 
@@ -111,12 +118,12 @@ namespace Skaldy
             try
             {
                 int i = 0;
-                fileDir.Clear();
+                FileDir.Clear();
                 foreach (string f in Directory.GetFiles(sDir))
                 {
                     string? justFileName = Path.GetFileName(f);
-                    fileDir.Add(i, justFileName);
-                    SkaldyLogger.LogWarning(justFileName);
+                    FileDir.Add(i, justFileName);
+                    SkaldyLogger.LogWarning(justFileName + " Index: " + i);
                     if (i == 0)
                     {
                         audioFileName.Value = justFileName;
@@ -155,11 +162,36 @@ namespace Skaldy
             }
         }
 
+        [HarmonyPatch(typeof(TextInput), nameof(TextInput.IsVisible))]
+        private static class INPUTPATCHforFeedback
+        {
+            private static void Postfix(ref bool __result)
+            {
+                if (IsPanelVisible()) __result = true;
+            }
+        }
+
+        public static bool IsPanelVisible()
+        {
+            return (SongGUI && SongGUI.activeSelf);
+        }
+
+        public static void HideGUI()
+        {
+            SongGUI.SetActive(false);
+        }
+
+        public static void ShowGUI()
+        {
+            SongGUI.SetActive(true);
+            //SongDropdown.PopulateSongList();
+        }
 
         #region ConfigOptions
 
         private static ConfigEntry<bool>? _serverConfigLocked;
         internal static ConfigEntry<string>? audioFileName;
+        
         internal static ConfigEntry<float>? audioFileVolume;
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,

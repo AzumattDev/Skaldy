@@ -29,29 +29,36 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
 
     public void Update()
     {
-        Player closestPlayer = Player.GetClosestPlayer(transform.position, m_standRange);
-        if (closestPlayer)
+        try
         {
-            float num = Vector3.Distance(closestPlayer.transform.position, transform.position);
-            if (!m_didGreet && num < (double)m_greetRange)
+            Player closestPlayer = Player.GetClosestPlayer(transform.position, m_standRange);
+            if (closestPlayer)
             {
-                m_didGreet = true;
-                m_didGoodbye = false;
-                Say(m_randomGreets, "Greet");
-                if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
-                    return;
-                AudioController.AudioStart = gameObject.GetComponent<AudioController>()
-                    .StartCoroutine(gameObject.GetComponent<AudioController>().LoadAudio());
-            }
+                float num = Vector3.Distance(closestPlayer.transform.position, transform.position);
+                if (!m_didGreet && num < (double)m_greetRange)
+                {
+                    m_didGreet = true;
+                    m_didGoodbye = false;
+                    Say(m_randomGreets, "Greet");
+                    if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
+                        return;
+                    AudioController.AudioStart = gameObject.GetComponent<AudioController>()
+                        .StartCoroutine(gameObject.GetComponent<AudioController>().LoadAudio());
+                }
 
-            if (!m_didGreet || m_didGoodbye || num <= (double)m_byeRange)
-                return;
-            m_didGoodbye = true;
-            m_didGreet = false;
-            Say(m_randomGoodbye, "Greet");
-            if (AudioController.AudioStart == null) return;
-            StopCoroutine(AudioController.AudioStart);
-            gameObject.GetComponent<AudioController>().audioSource.Stop();
+                if (!m_didGreet || m_didGoodbye || num <= (double)m_byeRange)
+                    return;
+                m_didGoodbye = true;
+                m_didGreet = false;
+                Say(m_randomGoodbye, "Greet");
+                if (AudioController.AudioStart == null) return;
+                StopCoroutine(AudioController.AudioStart);
+                gameObject.GetComponent<AudioController>().audioSource.Stop();
+            }
+        }
+        catch (Exception e)
+        {
+            System.Console.WriteLine(e);
         }
     }
 
@@ -66,14 +73,23 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
     {
         StringBuilder stringBuilder = new();
 
-        stringBuilder.Append(
-            Localization.instance.Localize(m_name +
-                                           $"\n[<color=green>Playing:</color> {GetCurrentSong()}]" +
-                                           "\n\n[<color=yellow><b>$KEY_Use</b></color>] $raven_interact"));
         if (gameObject.GetComponent<AudioController>().audioSource.isPlaying)
         {
             stringBuilder.Append(
+                Localization.instance.Localize(m_name));
+            stringBuilder.Append(
+                Localization.instance.Localize($"\n\n[<color=yellow><b>$KEY_Use</b></color>] $raven_interact"));
+            stringBuilder.Append(
+                Localization.instance.Localize($"\n[<color=green>Playing:</color> {GetCurrentSong()}]"));
+            stringBuilder.Append(
                 Localization.instance.Localize("\n[<color=red><b>Left Shift + $KEY_Use</b></color>] Stop Playing"));
+        }
+        else
+        {
+            stringBuilder.Append(
+                Localization.instance.Localize(m_name));
+            stringBuilder.Append(
+                Localization.instance.Localize($"\n\n[<color=yellow><b>$KEY_Use</b></color>] $raven_interact"));
         }
 
         return stringBuilder.ToString();
@@ -96,7 +112,8 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         {
             try
             {
-                CycleAccessMode();
+                SkaldyPlugin.ShowGUI();
+                //CycleAccessMode();
                 return true;
             }
             catch (Exception ex)
@@ -126,19 +143,49 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         return GetComponent<ZNetView>().GetZDO().GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
     }
 
-    private void CycleAccessMode()
+    internal void CycleAccessMode()
     {
         if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
             return;
         string currentSongName = GetCurrentSong();
 
-        for (int i = 0; i < SkaldyPlugin.fileDir.Count; i++)
-            if (SkaldyPlugin.fileDir[i] == currentSongName)
+        for (int i = 0; i < SkaldyPlugin.FileDir.Count; i++)
+            if (SkaldyPlugin.FileDir[i] == currentSongName)
             {
                 i++;
-                if (i >= SkaldyPlugin.fileDir.Count)
+                if (i >= SkaldyPlugin.FileDir.Count)
                     i = 0;
-                SetCurrentSong(this, SkaldyPlugin.fileDir[i]);
+                SetCurrentSong(this, SkaldyPlugin.FileDir[i]);
+                try
+                {
+                    AudioController.AudioStart = gameObject.GetComponent<AudioController>()
+                        .StartCoroutine(gameObject.GetComponent<AudioController>().LoadAudio());
+                }
+                catch
+                {
+                    SkaldyPlugin.SkaldyLogger.LogWarning("There was a problem starting the coroutine.");
+                }
+
+                return;
+            }
+
+
+        SetCurrentSong(this, GetCurrentSong());
+    }
+    
+    internal void ReloadAudio(SkaldyBehaviour skaldyBehaviour)
+    {
+        if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
+            return;
+        string currentSongName = GetCurrentSong();
+
+        for (int i = 0; i < SkaldyPlugin.FileDir.Count; i++)
+            if (SkaldyPlugin.FileDir[i] == currentSongName)
+            {
+                i++;
+                if (i >= SkaldyPlugin.FileDir.Count)
+                    i = 0;
+                SetCurrentSong(this, SkaldyPlugin.FileDir[i]);
                 try
                 {
                     AudioController.AudioStart = gameObject.GetComponent<AudioController>()

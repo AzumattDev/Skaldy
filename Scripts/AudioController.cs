@@ -55,7 +55,7 @@ public class AudioController : MonoBehaviour
     {
         audioSource.clip = audioClip;
         audioSource.enabled = true;
-        audioSource.Play();
+        //audioSource.Play();
         audioSource.loop = true;
         audioSource.volume = audioFileVolume.Value;
     }
