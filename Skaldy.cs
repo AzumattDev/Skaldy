@@ -42,6 +42,9 @@ namespace Skaldy
 
         public void Awake()
         {
+            _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
+            _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
+
             audioFileName = config("General", "Audio File Name", "",
                 "The audio file you wish to load from the BardSounds folder. This value, if left blank, will default to the first file found in the folder.",
                 false);
@@ -122,7 +125,7 @@ namespace Skaldy
                 {
                     string? justFileName = Path.GetFileName(f);
                     FileDir.Add(i, justFileName);
-                    SkaldyLogger.LogWarning(justFileName + " Index: " + i);
+                    SkaldyLogger.LogDebug(justFileName + " Index: " + i);
                     if (i == 0)
                     {
                         audioFileName.Value = justFileName;
