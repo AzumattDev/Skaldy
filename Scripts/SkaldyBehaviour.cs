@@ -112,7 +112,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
         {
             try
             {
-                SkaldyPlugin.ShowGUI();
+                SkaldyPlugin.ShowGUI(this);
                 //CycleSong();
                 return true;
             }

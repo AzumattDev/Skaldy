@@ -17,7 +17,6 @@ public class AudioController : MonoBehaviour
         if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
             return;
         audioSource = gameObject.GetComponent<AudioSource>();
-
         try
         {
             audioSource.outputAudioMixerGroup =
@@ -55,7 +54,7 @@ public class AudioController : MonoBehaviour
     {
         audioSource.clip = audioClip;
         audioSource.enabled = true;
-        //audioSource.Play();
+        audioSource.Play();
         audioSource.loop = true;
         audioSource.volume = audioFileVolume.Value;
     }

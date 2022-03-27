@@ -42,16 +42,14 @@ namespace Skaldy
 
         public void Awake()
         {
-            _serverConfigLocked = config("General", "Force Server Config", true, "Force Server Config");
-            _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
-
             audioFileName = config("General", "Audio File Name", "",
-                "The audio file you wish to load from the BardSounds folder. This value, if left blank, will default to the first file found in the folder.");
+                "The audio file you wish to load from the BardSounds folder. This value, if left blank, will default to the first file found in the folder.",
+                false);
 
             audioFileVolume = config("General", "Audio File Internal Volume", 0.1f,
                 new ConfigDescription(
                     "Modify the internal volume of the audio source.\nValues are between  0 - 1.",
-                    new AcceptableValueRange<float>(0.0f, 1.0f)));
+                    new AcceptableValueRange<float>(0.0f, 1.0f)), false);
 
             BuildPiece buildPiece = new("skaldy", "Skaldy");
             buildPiece.Name.English("Skaldy The Bard");
@@ -62,9 +60,9 @@ namespace Skaldy
             SongGUI = Instantiate(go);
             DontDestroyOnLoad(SongGUI);
             SongGUI.SetActive(false);
-            
+
             /* Load all of the sounds in the folder of the client */
-            Directory.CreateDirectory("BardSounds");
+            Directory.CreateDirectory(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds");
             DirSearch(Paths.PluginPath + Path.DirectorySeparatorChar + "BardSounds" + Path.DirectorySeparatorChar);
 
             _harmony.PatchAll();
@@ -182,17 +180,17 @@ namespace Skaldy
             SongGUI.SetActive(false);
         }
 
-        public static void ShowGUI()
+        public static void ShowGUI(SkaldyBehaviour skaldyBehaviour)
         {
             SongGUI.SetActive(true);
-            //SongDropdown.PopulateSongList();
+            SongDropdown.SetBehaviour(skaldyBehaviour);
         }
 
         #region ConfigOptions
 
         private static ConfigEntry<bool>? _serverConfigLocked;
         internal static ConfigEntry<string>? audioFileName;
-        
+
         internal static ConfigEntry<float>? audioFileVolume;
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,

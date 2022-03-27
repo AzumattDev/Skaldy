@@ -2,13 +2,14 @@
 using System.Runtime.InteropServices;
 using Skaldy;
 
+
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle(SkaldyPlugin.ModName)]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Azumatt")]
+[assembly: AssemblyCompany(SkaldyPlugin.Author)]
 [assembly: AssemblyProduct(SkaldyPlugin.ModName)]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
