@@ -1,4 +1,4 @@
-﻿Bard to play some songs for you.
+Bard to play some songs for you.
 
 
 `Can be installed on both the client and the server. This is for if you want to force & configure the recipe cost.`

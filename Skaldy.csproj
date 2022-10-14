@@ -141,5 +141,8 @@
     <Target Name="AfterBuild">
     </Target>
     -->
+    <Target Name="Copy" AfterTargets="ILRepack">
+        <Exec Command="copy /Y &quot;$(TargetDir)$(AssemblyName).dll&quot; &quot;C:\Users\crypt\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\PermaTesting\BepInEx\plugins\_TESTINGMODS\$(AssemblyName).dll&quot;" />
+    </Target>
 
 </Project>
