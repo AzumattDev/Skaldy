@@ -138,7 +138,7 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
 
     public string GetCurrentSong()
     {
-        if (!GetComponent<ZNetView>().IsValid() || !GetComponent<ZNetView>().IsOwner())
+        if (!GetComponent<ZNetView>().IsValid())
             return "";
         return GetComponent<ZNetView>().GetZDO().GetString("CurrentSong", SkaldyPlugin.audioFileName.Value);
     }
@@ -206,9 +206,11 @@ public class SkaldyBehaviour : MonoBehaviour, Hoverable, Interactable
     public static void SetCurrentSong(SkaldyBehaviour skaldy,
         string songName)
     {
-        if (skaldy.GetComponent<ZNetView>() && skaldy.GetComponent<ZNetView>().m_zdo != null)
+        var znv = skaldy.GetComponent<ZNetView>();
+        if (znv && skaldy.GetComponent<ZNetView>().m_zdo != null)
         {
-            skaldy.GetComponent<ZNetView>().m_zdo.Set("CurrentSong", songName);
+            if (!znv.IsOwner()) return;
+            znv.m_zdo.Set("CurrentSong", songName);
             SkaldyPlugin.SkaldyLogger.LogWarning($"LOGGING {songName}");
         }
     }
