@@ -121,7 +121,6 @@
         <EmbeddedResource Include="assets\skaldy" />
         <Content Include="ILRepack.targets" />
         <Content Include="Libs\ServerSync.dll" />
-        <Content Include="LICENSE.txt" />
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config" />
